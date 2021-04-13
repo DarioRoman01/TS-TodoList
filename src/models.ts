@@ -1,5 +1,5 @@
 import View from "./view";
-import Todo from "./types"
+import Todo, { TodoProps } from "./types"
 
 export default class Model {
 	view: View | null;
@@ -40,11 +40,17 @@ export default class Model {
 		return this.todos.findIndex((todo: Todo) => todo.id === id);
 	}
 
+	editTodo(id: number, values: TodoProps) {
+		const index = this.findTodo(id);
+		Object.assign(this.todos[index], values);
+		this.save();
+	}
+
 	toggleComplete(id: number) {
 		const index = this.findTodo(id);
 		const todo = this.todos[index];
 		todo.completed = !todo.completed;
-		console.log(todo);
+		this.save();
 	}
 
 	addTodo(title: string, description: string): Todo {
