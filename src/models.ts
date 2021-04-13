@@ -1,29 +1,68 @@
 import View from "./view";
+import Todo from "./types"
 
 export default class Model {
 	view: View | null;
-	todos: [];
+	todos: Todo[];
+	currentId: number;
 
 	constructor() {
 		this.view = null;
-		this.todos = [];
+		this.todos = JSON.parse(localStorage.getItem("todos"));
+		if (!this.todos || this.todos.length < 1) {
+			this.todos = [
+				{
+					id: 0,
+					title: "Learn js",
+					description: "Watch js tutorials",
+					completed: false,
+				}
+			]
+			this.currentId = 1;
+		} else {
+			this.currentId = this.todos[this.todos.length - 1].id+1;
+		}
 	}
 
 	setView(view: View): void {
 		this.view = view
 	}
 
-	getTodos() {
+	save() {
+		localStorage.setItem("todos", JSON.stringify(this.todos));
+	}
+
+	getTodos(): Todo[] {
 		return this.todos;
 	}
 
-	addTodo(title: string, description: string) {
-		const todo = {
-			id: 0,
-			title: title,
-			description: description,
+	findTodo(id: number): number {
+		return this.todos.findIndex((todo: Todo) => todo.id === id);
+	}
+
+	toggleComplete(id: number) {
+		const index = this.findTodo(id);
+		const todo = this.todos[index];
+		todo.completed = !todo.completed;
+		console.log(todo);
+	}
+
+	addTodo(title: string, description: string): Todo {
+		const todo: Todo = {
+			id: this.currentId++,
+			title,
+			description,
 			completed: false,
 		}
-		console.log(todo)
+		
+		this.todos.push(todo);
+		this.save();
+		return {...todo};
+	}
+
+	removeTodo(id: number) {
+		const index = this.findTodo(id);
+		this.todos.splice(index, 1);
+		this.save();
 	}
 }
